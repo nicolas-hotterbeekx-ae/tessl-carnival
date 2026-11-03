@@ -31,11 +31,13 @@ import {
   findPath,
   followPath,
   inputDirection,
+  jump,
   layoutMidway,
   pathToBooth,
   strollTiles,
   toScreen,
   toTile,
+  updateJump,
   updateVisitor,
   walk,
   type BoothSlot,
@@ -67,7 +69,8 @@ const MOVE_KEYS: Record<string, [number, number]> = {
   ArrowRight: [1, 0],
   KeyD: [1, 0],
 };
-const PLAY_KEYS = new Set(['KeyE', 'Enter', 'Space']);
+const PLAY_KEYS = new Set(['KeyE', 'Enter']);
+const JUMP_KEY = 'Space';
 const DEVCON_URL =
   'https://tessl.io/devcon?utm_source=carnival&utm_medium=midway-billboard&utm_campaign=tessl-carnival';
 const MIN_QUALITY = 0.5;
@@ -156,6 +159,9 @@ export function startMidway(canvas: HTMLCanvasElement, options: MidwayOptions): 
       player.path = [];
       destination = undefined;
       event.preventDefault();
+    } else if (event.code === JUMP_KEY && !isControl(event.target)) {
+      event.preventDefault();
+      jump(player);
     } else if (PLAY_KEYS.has(event.code) && !isControl(event.target) && inReach?.gameId) {
       event.preventDefault();
       play(inReach);
@@ -419,6 +425,7 @@ export function startMidway(canvas: HTMLCanvasElement, options: MidwayOptions): 
     if (direction.x !== 0 || direction.y !== 0) walk(map, player, direction, dt);
     else if (player.path.length > 0) followPath(player, dt);
     else player.walking = false;
+    updateJump(player, dt);
 
     for (const visitor of visitors) updateVisitor(map, visitor, dt, Math.random, strolls);
 
