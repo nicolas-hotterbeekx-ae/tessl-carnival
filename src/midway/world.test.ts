@@ -8,11 +8,16 @@ import {
   followPath,
   inputDirection,
   isBlocked,
+  jump,
+  JUMP_HEIGHT,
+  JUMP_TIME,
+  jumpHeight,
   layoutMidway,
   pathToBooth,
   seededRandom,
   toScreen,
   toTile,
+  updateJump,
   updateVisitor,
   walk,
 } from './world';
@@ -134,6 +139,32 @@ describe('walking', () => {
     expect(done).toBe(true);
     expect(walker.x).toBe(map.avenueX + 0.5);
     expect(walker.y).toBe(5.5);
+  });
+});
+
+describe('jumping', () => {
+  it('rises, peaks halfway and lands', () => {
+    const walker = createWalker({ x: 3, y: 3 });
+    expect(jumpHeight(walker)).toBe(0);
+    expect(jump(walker)).toBe(true);
+    updateJump(walker, JUMP_TIME / 4);
+    const rising = jumpHeight(walker);
+    expect(rising).toBeGreaterThan(0);
+    updateJump(walker, JUMP_TIME / 4);
+    expect(jumpHeight(walker)).toBeCloseTo(JUMP_HEIGHT);
+    expect(jumpHeight(walker)).toBeGreaterThan(rising);
+    updateJump(walker, JUMP_TIME / 2);
+    expect(jumpHeight(walker)).toBe(0);
+    expect(walker).toMatchObject({ x: 3, y: 3 });
+  });
+
+  it("can't jump again until it lands", () => {
+    const walker = createWalker({ x: 3, y: 3 });
+    jump(walker);
+    updateJump(walker, JUMP_TIME / 2);
+    expect(jump(walker)).toBe(false);
+    updateJump(walker, JUMP_TIME / 2);
+    expect(jump(walker)).toBe(true);
   });
 });
 

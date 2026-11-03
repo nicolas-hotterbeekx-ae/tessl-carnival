@@ -14,6 +14,9 @@ export const VISITOR_SPEED = 1.6;
 export const WALKER_RADIUS = 0.3;
 /** How close, in tiles, the player must stand to a booth to play it. */
 export const BOOTH_REACH = 1.1;
+/** How long a jump lasts, in seconds, and how high it goes, in screen pixels. */
+export const JUMP_TIME = 0.5;
+export const JUMP_HEIGHT = 14;
 
 export interface Point {
   x: number;
@@ -274,10 +277,33 @@ export interface Walker extends Point {
   walking: boolean;
   /** Distance walked, in tiles; drives the walking animation. */
   stride: number;
+  /** Seconds into the current jump, or undefined when on the ground. */
+  jump?: number;
 }
 
 export function createWalker(at: Point): Walker {
   return { x: at.x, y: at.y, path: [], facing: 'front', flipped: false, walking: false, stride: 0 };
+}
+
+/** Starts a jump. Returns false if the walker is already in the air. */
+export function jump(walker: Walker): boolean {
+  if (walker.jump !== undefined) return false;
+  walker.jump = 0;
+  return true;
+}
+
+/** Moves a jump on by `dt` seconds, landing once it's over. */
+export function updateJump(walker: Walker, dt: number) {
+  if (walker.jump === undefined) return;
+  walker.jump += dt;
+  if (walker.jump >= JUMP_TIME) walker.jump = undefined;
+}
+
+/** How high off the ground the walker is, in screen pixels. */
+export function jumpHeight(walker: Walker): number {
+  if (walker.jump === undefined) return 0;
+  const t = walker.jump / JUMP_TIME;
+  return JUMP_HEIGHT * 4 * t * (1 - t);
 }
 
 function face(walker: Walker, dx: number, dy: number) {

@@ -94,7 +94,7 @@ session with a different carnival.
 3. **Play** at your Pages link,
    `https://<your-username>.github.io/tessl-carnival/`. Walk up to the water
    cannon booth and press **E**. Walk with WASD or the arrow keys, or click
-   where you want to go.
+   where you want to go. Press **Space** to jump.
 
 Every merge to `main` redeploys your carnival, so your factory's work shows up
 at the same link.
